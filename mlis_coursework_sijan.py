@@ -34,13 +34,9 @@ def get_label(file_path):
 
 def decode_img(img):
     # Convert the compr essed string to a 3D uint8 tensor and apply normalisation
-    
-   # normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1./255)
-    try:
-        img = tf.image.decode_png(img, channels=3)
-    except:
-        pass
-    #img = normalization_layer(img)
+    normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1./255)
+    img = tf.image.decode_png(img, channels=3)
+    img = normalization_layer(img)
     return img
 
 def process_path(file_path):
