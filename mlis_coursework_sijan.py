@@ -9,6 +9,9 @@ from tensorflow.keras.layers import Input, Dense, Flatten, Conv2D, MaxPooling2D,
 from tensorflow.keras.metrics import mean_squared_error  
 from tensorflow.keras.optimizers import Adam
 
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
 # Image directories
 train_dir = 'D:/data/training_data/training_data/*'
 test_dir = 'D:/data/test_data/test_data/*'
@@ -16,7 +19,7 @@ labels_dir = 'D:/data/training_norm.csv'
 
 # Labels CSV
 df_labels = pd.read_csv(labels_dir)
-df_labels.info()
+
 # List image files and split for validation
 dataset_list = tf.data.Dataset.list_files(train_dir, shuffle=True)
 dataset_size = tf.data.experimental.cardinality(dataset_list).numpy()
@@ -26,24 +29,27 @@ validation_list = dataset_list.take(val_size)
 
 def get_label(file_path):
     # Extract labels from csv using filename
-    file_id = str(file_path).split('\\')[-1].split('.')[0]
+    file_id = str(file_path).split('/')[-1].split('.')[0]
     img_id, angle, speed = df_labels[df_labels['image_id'] == int(file_id)].to_numpy().squeeze()
     if int(file_id) == int(img_id):
         return angle, speed
     raise Exception("Mismatch ID between image and csv file")
 
-def decode_img(img):
-    # Convert the compr essed string to a 3D uint8 tensor and apply normalisation
-    #normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1./255)
-    img = tf.image.decode_jpg(img, channels=3)
-    #img = normalization_layer(img)
+def decode_img(img, file_path):
+    # Convert the compressed string to a 3D uint8 tensor and apply normalisation
+    normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1./255)
+    img = tf.image.decode_png(img, channels=3)
+    try:
+        img = normalization_layer(img)
+    except:
+        raise Exception("Check this file: " + file_path)
     return img
 
 def process_path(file_path):
     # load the raw data from the file as a string
     labels = get_label(file_path)
     img = tf.io.read_file(file_path)
-    img = decode_img(img)
+    img = decode_img(img , file_path)
     return img, labels
 
 # Generate train dataset
@@ -52,13 +58,17 @@ train_labels = []
 counter = 0
 total = tf.data.experimental.cardinality(train_list).numpy()
 
-for path in train_list.take(total):
-    counter += 1
-    file_path = path.numpy()
-    img_features, img_labels = process_path(file_path)
-    train_features.append(img_features)
-    train_labels.append(img_labels)
-    print("Train dataset: " + str(file_path) + " ----- " + str(counter) + "/" + str(total))
+try:
+    for path in train_list.take(total):
+        counter += 1
+        file_path = path.numpy()
+        img_features, img_labels = process_path(file_path)
+        train_features.append(img_features)
+        train_labels.append(img_labels)
+        print("Train dataset: " + str(file_path) + " ----- " + str(counter) + "/" + str(total))
+except Exception:
+    print("InvalidArgumentError: Corrupted image file")
+    pass
 features_dataset = tf.data.Dataset.from_tensor_slices(train_features)
 labels_dataset = tf.data.Dataset.from_tensor_slices(train_labels)
 train_dataset = tf.data.Dataset.zip((features_dataset, labels_dataset))
@@ -68,13 +78,17 @@ validation_features = []
 validation_labels = []
 counter = 0
 total = tf.data.experimental.cardinality(validation_list).numpy()
-for path in validation_list.take(total):
-    counter += 1
-    file_path = path.numpy()
-    img_features, img_labels = process_path(file_path)
-    validation_features.append(img_features)
-    validation_labels.append(img_labels)
-    print("Validation dataset:", str(file_path) + " ----- " + str(counter) + "/" + str(total))
+try:
+    for path in validation_list.take(total):
+        counter += 1
+        file_path = path.numpy()
+        img_features, img_labels = process_path(file_path)
+        validation_features.append(img_features)
+        validation_labels.append(img_labels)
+        print("Validation dataset:", str(file_path) + " ----- " + str(counter) + "/" + str(total))
+except:
+    print("InvalidArgumentError: Corrupted image file")
+    pass
 features_dataset = tf.data.Dataset.from_tensor_slices(validation_features)
 labels_dataset = tf.data.Dataset.from_tensor_slices(validation_labels)
 validation_dataset = tf.data.Dataset.zip((features_dataset, labels_dataset))
@@ -95,8 +109,8 @@ batch_size = 32
 
 input_shape = (img_height, img_width, 3)
 
-train_dataset = configure_for_performance(train_dataset)
-validation_dataset = configure_for_performance(validation_dataset)
+#train_dataset = configure_for_performance(train_dataset)
+#validation_dataset = configure_for_performance(validation_dataset)
 
 def DriveCNN(input_shape, learning_rate):
     # Input layers
