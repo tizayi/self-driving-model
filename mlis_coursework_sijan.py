@@ -9,13 +9,11 @@ from tensorflow.keras.layers import Input, Dense, Flatten, Conv2D, MaxPooling2D,
 from tensorflow.keras.metrics import mean_squared_error  
 from tensorflow.keras.optimizers import Adam
 
-physical_devices = tf.config.list_physical_devices('GPU')
-tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 # Image directories
-train_dir = 'D:/data/training_data/training_data/*'
-test_dir = 'D:/data/test_data/test_data/*'
-labels_dir = 'D:/data/training_norm.csv'
+train_dir = 'D:data/training_data/training_data/*'
+test_dir = 'D:data/test_data/test_data/*'
+labels_dir = 'D:data/training_norm.csv'
 
 # Labels CSV
 df_labels = pd.read_csv(labels_dir)
@@ -59,7 +57,7 @@ counter = 0
 total = tf.data.experimental.cardinality(train_list).numpy()
 
 try:
-    for path in train_list.take(total):
+    for path in train_list.take(1000):
         counter += 1
         file_path = path.numpy()
         img_features, img_labels = process_path(file_path)
@@ -79,7 +77,7 @@ validation_labels = []
 counter = 0
 total = tf.data.experimental.cardinality(validation_list).numpy()
 try:
-    for path in validation_list.take(total):
+    for path in validation_list.take(200):
         counter += 1
         file_path = path.numpy()
         img_features, img_labels = process_path(file_path)
@@ -158,3 +156,5 @@ print(model.summary())
 
 with tf.device("/GPU:0"):
     model.fit(train_dataset, epochs=epochs, validation_data=validation_dataset, verbose=1, shuffle=True, use_multiprocessing=True)
+
+model.save('my_model.h5')
