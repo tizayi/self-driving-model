@@ -121,10 +121,10 @@ def process_path(file_path):
 
 with tf.device("/GPU:0"):
     history = model.fit(image_data_generator( X_train, batch_size=100),
-                              steps_per_epoch=50,
+                              steps_per_epoch=100,
                               epochs=epochs,
                               validation_data = image_data_generator( X_valid, batch_size=100),
-                              validation_steps=25,
+                              validation_steps=50,
                               verbose=1,
                               shuffle=1)
 
