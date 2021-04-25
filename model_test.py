@@ -22,7 +22,7 @@ def process_path(file_path):
 
 # Loading the model in
 test_dir =  'D:/data/test_data/test_data/'
-model_output_dir='D:/data'
+model_output_dir='D:/data/Models'
 model = tf.keras.models.load_model(os.path.join(model_output_dir,'car_model_3.h5'))
 
 # Loading the test data in
@@ -56,8 +56,10 @@ data = {'image_id':image_id,'angle': results[:,0],'speed':results[:,1]}
 
 df = pd.DataFrame(data=data, index=image_id)
 sortdf = df.sort_index()
+print(sortdf)
 
-sortdf.to_csv('results.csv',index=False)
+result_path = 'D:/data/Results'
+sortdf.to_csv('results_1.csv',index=False)
 
 
 

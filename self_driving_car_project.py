@@ -56,24 +56,21 @@ def DriveCNN(input_shape, learning_rate):
     # Input layers
     inputs = Input(shape=input_shape, name='img_input')
 
-    x = Conv2D(filters=3, kernel_size=(3,3), activation='elu')(inputs)
+    x = Conv2D(filters=16, kernel_size=(3,3), activation='elu')(inputs)
     x = BatchNormalization()(x)
     x = MaxPooling2D(pool_size=(3,3))(x)
-    x = Conv2D(filters=9, kernel_size=(9,9), activation='elu')(x)
+    x = Conv2D(filters=32, kernel_size=(3,3), activation='elu')(x)
     x = BatchNormalization()(x)
     x = MaxPooling2D(pool_size=(3,3))(x)
-    x = Conv2D(filters=6, kernel_size=(6,6), activation='elu')(x)
+    x = Conv2D(filters=64, kernel_size=(3,3), activation='elu')(x)
     x = BatchNormalization()(x)
     x = MaxPooling2D(pool_size=(3,3))(x)
     
     x = Flatten()(x)
     
     x = Dense(units=100, activation='elu')(x)
-    x = BatchNormalization()(x)
     x = Dense(units=50, activation='elu')(x)
-    x = BatchNormalization()(x)
     x = Dense(units=30, activation='elu')(x)
-    x = BatchNormalization()(x)
     x = Dense(units=10, activation='elu')(x)
     x = BatchNormalization()(x)
     x = Dense(units=2)(x)
@@ -88,7 +85,7 @@ def DriveCNN(input_shape, learning_rate):
     return model
 
 learning_rate = 0.05
-epochs = 7
+epochs = 15
 img_height = 240
 img_width = 320
 
@@ -124,29 +121,12 @@ with tf.device("/GPU:0"):
                               steps_per_epoch=100,
                               epochs=epochs,
                               validation_data = image_data_generator( X_valid, batch_size=100),
-                              validation_steps=50,
+                              validation_steps=20,
                               verbose=1,
                               shuffle=1)
 
 """Saving the model and making predictions"""
 
-model_output_dir='D:/data'
-model.save(os.path.join(model_output_dir,'car_model_3.h5'))
+model_output_dir='D:/data/Models'
+model.save(os.path.join(model_output_dir,'car_model_2.h5'))
 
-
-'''
-# Creating test data predictions
-file_list_test = os.listdir(test_dir)
-test_paths = []
-pattern = "*.png"
-for filename in file_list_test:
-    if fnmatch.fnmatch(filename, pattern):
-        test_paths.append(os.path.join(test_dir,filename))
-
-test_images = [] 
-for path in test_paths:
-  img_feature = process_path(path)
-  test_images.append(img_feature)
-
-results = model.predict(np.array(test_images))
-'''
