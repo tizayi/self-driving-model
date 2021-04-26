@@ -1,4 +1,4 @@
-# Commented out IPython magic to ensure Python compatibility.
+ # Commented out IPython magic to ensure Python compatibility.
 import os
 import numpy as np
 import pandas as pd
@@ -20,10 +20,13 @@ def process_path(file_path):
   tf.reshape(image,(1,240,320,3))
   return image
 
-# Loading the model in
+# Listing directories
 test_dir =  'D:/data/test_data/test_data/'
 model_output_dir='D:/data/Models'
-model = tf.keras.models.load_model(os.path.join(model_output_dir,'car_model_3.h5'))
+result_path = 'D:/data/Results'
+
+# Loading the model in
+model = tf.keras.models.load_model(os.path.join(model_output_dir,'model_best.h5'))
 
 # Loading the test data in
 file_list_test = os.listdir(test_dir)
@@ -39,6 +42,7 @@ for path in test_paths:
   img_feature = process_path(path)
   test_images.append(img_feature)
 
+model.summary()
 results = model.predict(np.array(test_images))
 
 def results_norm(results):
@@ -47,7 +51,9 @@ def results_norm(results):
   results[:,1] = np.round(results[:,1])
   return results
 
-results=results_norm(results)
+print(results)
+
+#results=results_norm(results)
 
 # Save to csv
 idx=[s.strip('.png') for s in file_list_test]
@@ -58,8 +64,7 @@ df = pd.DataFrame(data=data, index=image_id)
 sortdf = df.sort_index()
 print(sortdf)
 
-result_path = 'D:/data/Results'
-sortdf.to_csv('results_1.csv',index=False)
+sortdf.to_csv(os.path.join(result_path,'results_best.csv'),index=False)
 
 
 
