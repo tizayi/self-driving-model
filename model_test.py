@@ -26,7 +26,7 @@ model_output_dir='D:/data/Models'
 result_path = 'D:/data/Results'
 
 # Loading the model in
-model = tf.keras.models.load_model(os.path.join(model_output_dir,'model_best.h5'))
+model = tf.keras.models.load_model(os.path.join(model_output_dir,'DeepDrivemodel.h5'))
 
 # Loading the test data in
 file_list_test = os.listdir(test_dir)
@@ -64,7 +64,7 @@ df = pd.DataFrame(data=data, index=image_id)
 sortdf = df.sort_index()
 print(sortdf)
 
-sortdf.to_csv(os.path.join(result_path,'results_best.csv'),index=False)
+sortdf.to_csv(os.path.join(result_path,'sub_thy_results.csv'),index=False)
 
 
 

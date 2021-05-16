@@ -44,7 +44,7 @@ def get_label(file_path):
         return angle, speed
     raise Exception("Mismatch ID between image and csv file")
 
-X_train, X_valid = train_test_split( image_paths, test_size=0.4)
+X_train, X_valid = train_test_split( image_paths, test_size=0.2)
 
 print("Training data: %d\nValidation data: %d" % (len(X_train), len(X_valid)))
 
@@ -52,33 +52,33 @@ def DriveCNN(input_shape, learning_rate):
     # Input layers
     inputs = Input(shape=input_shape, name='img_input')
 
-    x = Conv2D(filters=8, kernel_size=(3,3), activation='elu')(inputs)
+    x = Conv2D(filters=32, kernel_size=(3,3), activation='elu')(inputs)
     x = MaxPooling2D(pool_size=(3,3))(x)
-    x = Conv2D(filters=16, kernel_size=(3,3), activation='elu')(x)
+    x = Conv2D(filters=32, kernel_size=(3,3), activation='elu')(x)
     x = MaxPooling2D(pool_size=(3,3))(x)
     x = Conv2D(filters=32, kernel_size=(3,3), activation='elu')(x)
     x = MaxPooling2D(pool_size=(3,3))(x)
     x = BatchNormalization()(x)
     x = Flatten()(x)
     
-    x = Dense(units=200, activation='elu')(x)
+    x = Dense(units=500, activation='elu')(x)
     x = Dense(units=100, activation='elu')(x)
     x = Dense(units=50, activation='elu')(x)
     x = Dense(units=10, activation='elu')(x)
     x = BatchNormalization()(x)
-    x = Dense(units=2,activation='sigmoid')(x)
-
+    x = Dense(units=2)(x)
+    
     # Model compilation
     model = Model(inputs=inputs, outputs=x, name="DriveCNN")
     optimizer = Adam(learning_rate)
     model.compile(
         loss=mean_squared_error,
         optimizer=optimizer)
-
+    
     return model
 
-learning_rate = 0.05
-epochs = 100
+learning_rate = 0.001
+epochs = 30
 img_height = 240
 img_width = 320
 
@@ -130,7 +130,4 @@ plt.legend(["training loss", "validation loss"])
 plt.show()
 
 # Saving the model
-model.save(os.path.join(model_output_dir,'car_model_lets_gooo.h5'))
-
-
-
+model.save(os.path.join(model_output_dir,'car_model_67.h5'))
