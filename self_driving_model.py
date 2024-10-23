@@ -7,7 +7,7 @@ import random
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Flatten, Conv2D, MaxPooling2D, BatchNormalization, Dropout
 from tensorflow.keras import Model
-from tensorflow.keras.metrics import mean_squared_error  
+from tensorflow.keras.metrics import MeanSquaredError
 from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
@@ -72,7 +72,7 @@ def DriveCNN(input_shape, learning_rate):
     model = Model(inputs=inputs, outputs=x, name="DriveCNN")
     optimizer = Adam(learning_rate)
     model.compile(
-        loss=mean_squared_error,
+        loss=MeanSquaredError,
         optimizer=optimizer)
     
     return model

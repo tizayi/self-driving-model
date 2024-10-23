@@ -1,2 +1,5 @@
-# MLiS2_Self_driving_car_project
-Project to create a self driving Pi Car.
+# Self Driving Pi Car
+
+This is an end to end model for a controlling a self driving raspberry pi car.
+
+Details outlined in selfdriving.pdf
